@@ -4,6 +4,7 @@
         "slim/psr7": "^1.6",
         "php-di/php-di": "^7.0",
         "tuupola/slim-basic-auth": "^3.3",
-        "vlucas/phpdotenv": "^5.5"
+        "vlucas/phpdotenv": "^5.5",
+        "ext-pdo": "*"
     }
 }

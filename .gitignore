@@ -1,3 +1,5 @@
 /vendor
 /docker/php/.env
 /.env
+/public/.env
+/.idea

@@ -22,4 +22,8 @@ RUN git config --global user.email "you@example.com" \
 
 COPY /.env /var/www/slim_app/public/.env
 
+COPY .env /var/www/html/public/.env
+
+
+RUN docker-php-ext-install pdo pdo_mysql
 

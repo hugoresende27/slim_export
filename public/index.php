@@ -6,6 +6,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
+
+require __DIR__ . '/../config/Db.php';
+
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
@@ -20,20 +23,46 @@ $app = AppFactory::create();
 $app->addErrorMiddleware(true,true,true);
 
 $app->get('/', function (Request $request, Response $response, $args) {
-    $response->getBody()->write("Hello export_slim and docker env!");
+    $response->getBody()->write($_ENV['APP_NAME']);
     return $response;
 });
 
 $app->get('/test', function (Request $request, Response $response, $args) {
 
-    $var = $_ENV['APP_PASS'];
-    $response->getBody()->write($var);
-    return $response;
+
+
+    $sql = "SELECT * FROM friends";
+
+    try {
+
+        $db = new Db();
+        $conn = $db->connect();
+        $res =  $conn->query($sql);
+        $friends = $res->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        $response->getBody()->write(json_encode($friends));
+        return $response
+            ->withHeader('content-type','application/json')
+            ->withStatus(200);
+
+    } catch (PDOException $e) {
+
+        $error = array(
+            'message' => $e->getMessage()
+        );
+
+        $response->getBody()->write(json_encode($error));
+        return $response
+            ->withHeader('content-type','application/json')
+            ->withStatus(500);
+
+    }
+
 });
 
 $app->add(new Tuupola\Middleware\HttpBasicAuthentication([
     "users" => [
-        "hugo" => "1234",
+        $_ENV['APP_USER'] =>  $_ENV['APP_PASS'],
         "dev" => "0000"
     ]
 ]));
