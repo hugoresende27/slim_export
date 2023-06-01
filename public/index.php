@@ -6,7 +6,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 $container = new Container;
@@ -26,7 +26,8 @@ $app->get('/', function (Request $request, Response $response, $args) {
 
 $app->get('/test', function (Request $request, Response $response, $args) {
 
-    $response->getBody()->write(getenv('APP_NAME').getenv('APP_USER') );
+    $var = $_ENV['APP_PASS'];
+    $response->getBody()->write($var);
     return $response;
 });
 

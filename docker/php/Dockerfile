@@ -1,13 +1,5 @@
 FROM php:8.1-fpm
 
-# secrets env
-ARG APP_NAME
-ARG APP_PASS
-ARG APP_USER
-
-ENV APP_NAME=$APP_NAME
-ENV APP_PASS=$APP_PASS
-ENV APP_USER=$APP_USER
 
 
 # Rest of your Dockerfile instructions
@@ -28,5 +20,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN git config --global user.email "you@example.com" \
     && git config --global user.name "Your Name"
 
+COPY /.env /var/www/slim_app/public/.env
 
 
