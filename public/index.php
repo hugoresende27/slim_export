@@ -6,7 +6,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
-
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
 
 $container = new Container;
 $settings =  require __DIR__ . '/../app/setting.php';
@@ -23,4 +24,16 @@ $app->get('/', function (Request $request, Response $response, $args) {
     return $response;
 });
 
+$app->get('/test', function (Request $request, Response $response, $args) {
+
+    $response->getBody()->write(getenv('APP_NAME').getenv('APP_USER') );
+    return $response;
+});
+
+$app->add(new Tuupola\Middleware\HttpBasicAuthentication([
+    "users" => [
+        "hugo" => "1234",
+        "dev" => "0000"
+    ]
+]));
 $app->run();
