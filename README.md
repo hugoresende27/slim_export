@@ -8,7 +8,11 @@
 
 ## Docker set-up tut : https://dev.to/cherif_b/using-docker-for-slim-4-application-development-environment-1opm
 
-#### Authentication : "tuupola/slim-basic-auth"  
-
+#### Authentication : "tuupola/slim-basic-auth"
+------------------------------------------------
+#### Controllers :   "php-di/slim-bridge": "*"
+- use DI\Bridge\Slim\Bridge as SlimAppFactory;
+- $app = SlimAppFactory::create($container);
+------------------------------------------------
 #### 
 #### CRUD for properties

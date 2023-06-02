@@ -1,7 +1,5 @@
 <?php
 
-
-
 use DI\Bridge\Slim\Bridge as SlimAppFactory;
 use DI\Container;
 
