@@ -1,14 +1,18 @@
 <?php
-namespace Controllers;
+namespace Http\Controllers;
 
 use config\DbCrm;
+use PDO;
+use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+
 class PortaisController
 {
+
     public function index(Request $request, Response $response)
     {
-        $responseData = ['message' => 'aqui'];
+        $responseData = ['message' => 'Portais Controller index()'];
 
         $response->getBody()->write(json_encode($responseData));
 
@@ -23,7 +27,7 @@ class PortaisController
         try {
             $portals = $this->getPortalsFromDatabase();
 
-            $response->getBody()->write(json_encode($portals));
+            $response->getBody()->write($portals);
 
             return $response
                 ->withHeader('Content-Type', 'application/json')
@@ -50,7 +54,6 @@ class PortaisController
         $portals = $res->fetchAll(PDO::FETCH_OBJ);
 
         $db = null;
-
-        return $portals;
+        return var_export($portals, true);
     }
 }

@@ -2,4 +2,6 @@
 /docker/php/.env
 /.env
 /public/.env
+/bootstrap/.env
 /.idea
+/docker/mysql
