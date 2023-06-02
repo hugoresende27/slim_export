@@ -9,7 +9,9 @@ require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../app/config/Db.php';
 require __DIR__ . '/../app/config/DbCrm.php';
 require __DIR__ . '/../app/Http/Controllers/PortaisController.php';
+require __DIR__ . '/../app/Http/Controllers/TestController.php';
 
+//for .env
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 

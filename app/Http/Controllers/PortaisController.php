@@ -10,42 +10,45 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class PortaisController
 {
 
-    public function index(Request $request, Response $response)
+    public function index(Response $response): Response
     {
         $responseData = ['message' => 'Portais Controller index()'];
 
-        $response->getBody()->write(json_encode($responseData));
-
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(200);
+        return $this->createResponse($response, $responseData, 200);
     }
 
 
-    public function getPortais(Request $request, Response $response)
+    public function getPortais(Response $response, $id = null): Response
     {
+
         try {
-            $portals = $this->getPortalsFromDatabase();
-
-            $response->getBody()->write($portals);
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(200);
+            $portals = $this->getPortalsFromDatabase($id);
+            return $this->createResponse($response, $portals, 200);
         } catch (PDOException $e) {
             $error = array(
                 'message' => $e->getMessage()
             );
-
-            return $response
-                ->withJson($error)
-                ->withStatus(500);
+            return $this->createResponse($response, $error, 200);
         }
     }
 
-    private function getPortalsFromDatabase()
+    private function createResponse(Response $response, $data, $statusCode): Response
     {
-        $sql = "SELECT * FROM portais";
+        $responseBody = json_encode($data);
+        $response->getBody()->write($responseBody);
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($statusCode);
+    }
+
+    private function getPortalsFromDatabase(int $id = null): ?string
+    {
+        if ($id != null) {
+            $sql = "SELECT * FROM portais WHERE id=".$id;
+        } else {
+            $sql = "SELECT * FROM portais";
+        }
+
 
         $db = new DbCrm();
         $conn = $db->connect();
