@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Repositories\DbCrmRepository;
 
-class PortaisController
+class CompaniesController
 {
     private DbCrmRepository $dbCrmRepository;
 
@@ -19,18 +19,18 @@ class PortaisController
 
     public function index(Response $response): Response
     {
-        $responseData = ['message' => 'Portais Controller index()'];
+        $responseData = ['message' => 'Companies Controller index()'];
 
         return $this->createResponse($response, $responseData);
     }
 
 
-    public function getPortals(Response $response, $id = null): Response
+    public function getCompanies(Response $response, $id = null): Response
     {
 
         try {
 
-            $portals = $this->dbCrmRepository->getPortals($id);
+            $portals = $this->dbCrmRepository->getCompanies($id);
             $arrayPortals = [];
             foreach ($portals as $portal)
             {

@@ -14,6 +14,11 @@
 - use DI\Bridge\Slim\Bridge as SlimAppFactory;
 - $app = SlimAppFactory::create($container);
 ------------------------------------------------
+#### dd function
+- composer require symfony/var-dumper
+- helpers.php and require helpers.php on bootstrap/app.php
+-----------------------------------------------
+
 #### TODO
 - Get Companies
 - use RabbitMQ 

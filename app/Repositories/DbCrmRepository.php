@@ -7,30 +7,58 @@ use PDOException;
 
 class DbCrmRepository
 {
+    private $db;
+    private $conn;
+
+    public function __construct()
+    {
+        $this->db = new DbCrm();
+        $this->conn = $this->db->connect();
+    }
+
+    private function executeQuery(string $sql, int $id = null): array
+    {
+        $stmt = $this->conn->prepare($sql);
+
+        if ($id !== null) {
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getPortals(int $id = null): array
     {
         try {
-            $db = new DbCrm();
-            $conn = $db->connect();
+            $sql = "SELECT * FROM portais";
 
             if ($id !== null) {
-                $sql = "SELECT * FROM portais WHERE id = :id";
-                $stmt = $conn->prepare($sql);
-                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-                $stmt->execute();
-            } else {
-                $sql = "SELECT * FROM portais";
-                $stmt = $conn->query($sql);
+                $sql .= " WHERE id = :id";
             }
 
-            $portals = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            $db = null;
-
-            return $portals;
+            return $this->executeQuery($sql, $id);
         } catch (PDOException $e) {
-            // Handle the exception, log the error, or throw a custom exception
             throw new \Exception($e->getMessage());
         }
     }
+
+    public function getCompanies(int $id = null): array
+    {
+        try {
+            $sql = "SELECT * FROM empresa";
+
+            if ($id !== null) {
+                $sql .= " WHERE id = :id";
+            }
+
+            return $this->executeQuery($sql, $id);
+        } catch (PDOException $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+
+
 }

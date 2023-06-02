@@ -1,6 +1,7 @@
 <?php
 
 
+use Http\Controllers\CompaniesController;
 use Http\Controllers\PortaisController;
 use Http\Controllers\TestController;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -32,11 +33,15 @@ return function (App $app) {
     //api routes
     $app->group('/api', function (Group $group) {
 
+        //companies controller
+        $group->get('/companies', [CompaniesController::class, 'index']);
+        $group->get('/companies/all', [CompaniesController::class, 'getCompanies']);
+        $group->get('/companies/{id}', [CompaniesController::class, 'getCompanies']);
 
         //portals controller
         $group->get('/portals', [PortaisController::class, 'index']);
-        $group->get('/portals/all', [PortaisController::class, 'getPortais']);
-        $group->get('/portals/{id}', [PortaisController::class, 'getPortais']);
+        $group->get('/portals/all', [PortaisController::class, 'getPortals']);
+        $group->get('/portals/{id}', [PortaisController::class, 'getPortals']);
 
 
         //test controller
