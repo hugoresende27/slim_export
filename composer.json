@@ -9,6 +9,13 @@
         "ext-curl": "*",
         "ext-json": "*",
         "php-di/slim-bridge": "*",
-        "symfony/var-dumper": "^6.3"
+        "symfony/var-dumper": "^6.3",
+        "robmorgan/phinx": "*",
+        "fzaninotto/faker": "*"
+    },
+    "autoload": {
+        "files": [
+            "/app/helpers.php"
+        ]
     }
 }

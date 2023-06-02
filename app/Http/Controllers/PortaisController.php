@@ -28,6 +28,7 @@ class PortaisController
     public function getPortals(Response $response, $id = null): Response
     {
 
+
         try {
 
             $portals = $this->dbCrmRepository->getPortals($id);
