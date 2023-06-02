@@ -14,5 +14,8 @@
 - use DI\Bridge\Slim\Bridge as SlimAppFactory;
 - $app = SlimAppFactory::create($container);
 ------------------------------------------------
-#### 
-#### CRUD for properties
+#### TODO
+- Get Companies
+- use RabbitMQ 
+- CRUD for properties
+- export API
