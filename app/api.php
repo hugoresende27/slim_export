@@ -40,6 +40,8 @@ return function (App $app) {
         $group->get('/companies/all', [CompaniesController::class, 'getCompanies']);
         $group->get('/companies/{id}', [CompaniesController::class, 'getCompanies']);
         $group->post('/companies/create', [CompaniesController::class, 'create']);
+        $group->put('/companies/{id}', [CompaniesController::class, 'update']);
+        $group->delete('/companies/{id}', [CompaniesController::class, 'destroy']);
 
         //portals controller
         $group->get('/portals', [PortaisController::class, 'index']);

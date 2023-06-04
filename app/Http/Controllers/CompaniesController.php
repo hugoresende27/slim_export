@@ -18,18 +18,6 @@ class CompaniesController
         $this->dbRepository = $dbRepository;
     }
 
-    public function create(Request $request, Response $response): Response
-    {
-        // Get the JSON data from the request body
-        $jsonData = $request->getBody()->getContents();
-        // Convert the JSON string to an associative array
-        $data = json_decode($jsonData, true);
-        // Create a new company record
-        $company = $this->dbRepository->createNewCompany($data);
-        // Return a success response with the created company data
-        return $this->createResponse($response, $company, 201);
-
-    }
 
     public function index(Response $response): Response
     {
@@ -37,8 +25,6 @@ class CompaniesController
 
         return $this->createResponse($response, $responseData, 200);
     }
-
-
 
 
     public function getCompaniesCrm(Response $response, $id = null): Response
@@ -53,11 +39,11 @@ class CompaniesController
         }
     }
 
+
     public function getCompanies(Response $response, $id = null): Response
     {
 
         try {
-
             $companies = $this->dbRepository->getCompanies($id);
             return $this->createResponse($response, $companies, 200);
         } catch (PDOException $e) {
@@ -66,6 +52,63 @@ class CompaniesController
         }
     }
 
+
+    public function create(Request $request, Response $response): Response
+    {
+        // Get the JSON data from the request body
+        $jsonData = $request->getBody()->getContents();
+        // Convert the JSON string to an associative array
+        $data = json_decode($jsonData, true);
+        // Create a new company record
+        $company = $this->dbRepository->createNewCompany($data);
+        // Return a success response with the created company data
+        return $this->createResponse($response, $company, 201);
+
+    }
+
+    public function update(Request $request, Response $response, $id): Response
+    {
+        try {
+            // Get the JSON data from the request body
+            $jsonData = $request->getBody()->getContents();
+            // Convert the JSON string to an associative array
+            $data = json_decode($jsonData, true);
+
+            $updated = $this->dbRepository->updateCompany($id, $data);
+
+            if ($updated) {
+                $responseData = ['message' => 'Company updated successfully'];
+                return $this->createResponse($response, $responseData, 200);
+            } else {
+                $responseData = ['message' => 'Company not found'];
+                return $this->createResponse($response, $responseData, 404);
+            }
+        } catch (PDOException $e) {
+            $error = ['message' => $e->getMessage()];
+            return $this->createResponse($response, $error, 500);
+        }
+    }
+
+
+    public function destroy(Response $response, $id): Response
+    {
+        try {
+            $deleted = $this->dbRepository->deleteCompany($id);
+            if ($deleted) {
+                $responseData = ['message' => 'Company deleted successfully'];
+                return $this->createResponse($response, $responseData, 200);
+            } else {
+                $responseData = ['message' => 'Company not found'];
+                return $this->createResponse($response, $responseData, 404);
+            }
+        } catch (PDOException $e) {
+            $error = ['message' => $e->getMessage()];
+            return $this->createResponse($response, $error, 500);
+        }
+    }
+
+
+    ////* AUX PRIVATE FUNCTIONS *////
     private function createResponse(Response $response, $data, $status): Response
     {
 
