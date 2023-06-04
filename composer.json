@@ -12,10 +12,5 @@
         "symfony/var-dumper": "^6.3",
         "robmorgan/phinx": "*",
         "fzaninotto/faker": "*"
-    },
-    "autoload": {
-        "files": [
-            "/app/helpers.php"
-        ]
     }
 }

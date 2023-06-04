@@ -11,7 +11,7 @@ require __DIR__ . '/../app/config/Db.php';
 require __DIR__ . '/../app/config/DbCrm.php';
 
 //helpers
-//require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/helpers.php';
 
 
 //controllers
@@ -21,6 +21,7 @@ require __DIR__ . '/../app/Http/Controllers/CompaniesController.php';
 
 //repositories
 require __DIR__ . '/../app/Repositories/DbCrmRepository.php';
+require __DIR__ . '/../app/Repositories/DbRepository.php';
 
 //for .env
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);

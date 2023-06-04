@@ -28,7 +28,7 @@
 
 ------------------------------------------------
 #### TODO
-- Get Companies
+- Crud for companies
 - use RabbitMQ 
 - CRUD for properties
 - export API

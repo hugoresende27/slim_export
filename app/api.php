@@ -35,8 +35,11 @@ return function (App $app) {
 
         //companies controller
         $group->get('/companies', [CompaniesController::class, 'index']);
+        $group->get('/companies/crm/all', [CompaniesController::class, 'getCompaniesCrm']);
+        $group->get('/companies/crm/{id}', [CompaniesController::class, 'getCompaniesCrm']);
         $group->get('/companies/all', [CompaniesController::class, 'getCompanies']);
         $group->get('/companies/{id}', [CompaniesController::class, 'getCompanies']);
+        $group->post('/companies/create', [CompaniesController::class, 'create']);
 
         //portals controller
         $group->get('/portals', [PortaisController::class, 'index']);

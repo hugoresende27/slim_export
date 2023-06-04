@@ -21,7 +21,7 @@ return
         ],
         'development' => [
             'adapter' => 'mysql',
-            'host' => 'slim_sql',
+            'host' => 'slim_mysql',
             'name' => 'slim_export',
             'user' => 'root',
             'pass' => 'secret',

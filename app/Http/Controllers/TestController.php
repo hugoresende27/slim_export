@@ -16,6 +16,8 @@ class TestController
 
         $response->getBody()->write(json_encode($_ENV));
 
+//        dd(env('DB_HOST'));
+//        dd(class_basename($response));
         return $response
             ->withHeader('Content-Type', 'application/json')
             ->withStatus(200);
