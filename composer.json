@@ -11,6 +11,7 @@
         "php-di/slim-bridge": "*",
         "symfony/var-dumper": "^6.3",
         "robmorgan/phinx": "*",
-        "fzaninotto/faker": "*"
+        "fzaninotto/faker": "*",
+        "php-amqplib/php-amqplib": "^2.0"
     }
 }

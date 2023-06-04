@@ -25,10 +25,11 @@
 - ./vendor/bin/phinx init
 - ./vendor/bin/phinx create MakeUsersTableMigration -c app/config/migrations.php
 
+#### rabbitMQ
+- https://github.com/php-amqplib/php-amqplib
 
 ------------------------------------------------
 #### TODO
-- Crud for companies
 - use RabbitMQ 
 - CRUD for properties
 - export API

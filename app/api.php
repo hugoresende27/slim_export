@@ -42,6 +42,7 @@ return function (App $app) {
         $group->post('/companies/create', [CompaniesController::class, 'create']);
         $group->put('/companies/{id}', [CompaniesController::class, 'update']);
         $group->delete('/companies/{id}', [CompaniesController::class, 'destroy']);
+        $group->get('/dev', [CompaniesController::class, 'sendCompanyCreateRabbitMQ']);
 
         //portals controller
         $group->get('/portals', [PortaisController::class, 'index']);
