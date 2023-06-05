@@ -4,10 +4,12 @@ namespace Http\Controllers;
 use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+
 use Repositories\DbCrmRepository;
 use Repositories\DbRepository;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Message\AMQPMessage;
+use Services\RabbitMQService;
+
+
 class CompaniesController
 {
     private DbCrmRepository $dbCrmRepository;
@@ -20,37 +22,23 @@ class CompaniesController
     }
 
 
-    public function sendCompanyCreateRabbitMQ()
+    public function sendCompanyCreateRabbitMQ(Response $response)
     {
 
+        $serviceRabbitMQ = new RabbitMQService();
+        $responseData = $serviceRabbitMQ->publish('Hello HUGO R');
 
-        $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
-        $channel = $connection->channel();
+        return $this->createResponse($response, $responseData, 200);
 
-        $channel->queue_declare('Php queue', false, false, false, false);
+    }
 
-        $msg = new AMQPMessage('Hello World!');
-        $channel->basic_publish($msg, '', 'Php queue');
+    public function consumeRabbitMQ(Response $response)
+    {
 
-        echo " [x] Sent 'Hello World!'\n";
+        $serviceRabbitMQ = new RabbitMQService();
+        $responseData = $serviceRabbitMQ->consume();
 
-        $channel->close();
-        $connection->close();
-
-        dd('a');
-
-
-
-        $exchangeName = 'company_exchange';
-        $routingKey = 'company_created';
-
-        $messageBody = 'New company created!';
-        $message = new AMQPMessage($messageBody);
-
-        $channel->basic_publish($message, $exchangeName, $routingKey);
-
-        $channel->close();
-        $connection->close();
+        return $this->createResponse($response, $responseData, 200);
 
     }
 

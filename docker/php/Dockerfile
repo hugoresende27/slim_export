@@ -14,6 +14,7 @@ RUN apt update \
     && docker-php-ext-install zip
 
 WORKDIR /var/www/slim_app
+COPY . /var/www/slim_app
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -24,7 +25,9 @@ COPY /.env /var/www/slim_app/public/.env
 
 COPY .env /var/www/html/public/.env
 COPY .env /var/www/html/bootstrap/.env
+COPY .env /var/www/html/docker/php/.env
 
+RUN docker-php-ext-install sockets
 
 RUN docker-php-ext-install pdo pdo_mysql
 

@@ -17,6 +17,11 @@ class Db
         $this->user = $_ENV['DB_USER'];
         $this->pass = $_ENV['DB_PASS'];
         $this->dbName = $_ENV['DB_DATABASE'];
+
+//        $this->host = 'localhost';
+//        $this->user = 'root';
+//        $this->pass = '12345678';
+//        $this->dbName = 'slim-api';
     }
 
     public function connect(): PDO

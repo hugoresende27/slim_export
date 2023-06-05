@@ -1,5 +1,6 @@
 <?php
 
+use Symfony\Component\Console\Application;
 
 use Psr\Container\ContainerInterface;
 
@@ -11,4 +12,5 @@ return function (ContainerInterface $container) {
             'logErrors' => true
         ];
     });
+
 };
