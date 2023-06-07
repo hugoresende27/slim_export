@@ -4,6 +4,7 @@
 use Http\Controllers\CompaniesController;
 use Http\Controllers\PortaisController;
 use Http\Controllers\TestController;
+use Http\Controllers\ToolsController;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -42,7 +43,7 @@ return function (App $app) {
         $group->post('/companies/create', [CompaniesController::class, 'create']);
         $group->put('/companies/{id}', [CompaniesController::class, 'update']);
         $group->delete('/companies/{id}', [CompaniesController::class, 'destroy']);
-        $group->get('/dev', [CompaniesController::class, 'sendCompanyCreateRabbitMQ']);
+//        $group->get('/dev', [CompaniesController::class, 'sendCompanyCreateRabbitMQ']);
 
         //portals controller
         $group->get('/portals', [PortaisController::class, 'index']);
@@ -53,6 +54,10 @@ return function (App $app) {
         //test controller
         $group->get('/test', [TestController::class, 'index']);
         $group->get('/test/friends', [TestController::class, 'friendsDbTest']);
+        $group->get('/test/user', [TestController::class, 'userInfo']);
+
+        //json_excel convertor
+        $group->post('/json-xlsx', [ToolsController::class, 'jsonToxlsx']);
 
 
     });

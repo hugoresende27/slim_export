@@ -9,6 +9,8 @@ services:
       - '9000:9000'
     volumes:
       - .:/var/www/slim_app
+      - ./public/.env:/var/www/slim_app/public/.env
+      - ./public/.env:/var/www/slim_app/bootstrap/.env
     environment:
       - MYSQL_HOST=db_slim_export
       - MYSQL_PORT=3307
@@ -52,12 +54,12 @@ services:
       - PMA_PORT=3306
       - MYSQL_ROOT_PASSWORD=secret
 
-  rabbitmq:
-    image: rabbitmq:management
-    container_name: slim_rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-    ports:
-      - '5672:5672'
-      - '15672:15672'
+#  rabbitmq:
+#    image: rabbitmq:management
+#    container_name: slim_rabbitmq
+#    environment:
+#      - RABBITMQ_DEFAULT_USER=guest
+#      - RABBITMQ_DEFAULT_PASS=guest
+#    ports:
+#      - '5672:5672'
+#      - '15672:15672'

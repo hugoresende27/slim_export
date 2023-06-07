@@ -21,6 +21,7 @@ require_once __DIR__ . '/../app/helpers.php';
 require __DIR__ . '/../app/Http/Controllers/PortaisController.php';
 require __DIR__ . '/../app/Http/Controllers/TestController.php';
 require __DIR__ . '/../app/Http/Controllers/CompaniesController.php';
+require __DIR__ . '/../app/Http/Controllers/ToolsController.php';
 
 //repositories
 require __DIR__ . '/../app/Repositories/DbCrmRepository.php';

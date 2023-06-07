@@ -21,6 +21,31 @@ class TestController
             ->withStatus(200);
     }
 
+    public function userInfo(Response $response)
+    {
+                $userInfo = posix_getpwuid(posix_getuid());
+        //        dd($userInfo);
+        //        $directory = '/var/www/slim_app/text.txt';
+        //        $file = fopen($directory, 'a+');
+        //        fwrite($file, 'a');
+        //        dd($file);
+        $response->getBody()->write(json_encode($userInfo));
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+    }
+
+    public function jsonToxlsx(Response $response)
+    {
+
+        $response->getBody()->write('jsonToxlsx');
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+    }
+
     public function friendsDbTest(Request  $request, Response $response)
     {
         $sql = "SELECT * FROM friends";
