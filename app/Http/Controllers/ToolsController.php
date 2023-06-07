@@ -13,68 +13,56 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class ToolsController
 {
 
+
+
     public function jsonToxlsx(Response $response, Request $request)
     {
         $uploadedFiles = $request->getUploadedFiles();
-
-
-        $directory = '/var/www/slim_app/storage/';
-
-        if (!empty($uploadedFiles['file'])) {
-            $uploadedFile = $uploadedFiles['file'];
-
-            if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
-                // Read the JSON content
-                $jsonContent = json_decode($uploadedFile->getStream()->getContents(), true);
-
-                // Create a new spreadsheet
-                $spreadsheet = new Spreadsheet();
-                $sheet = $spreadsheet->getActiveSheet();
-
-//                dd($jsonContent);
-                $l = ['A','B','C','D','E','F','G','H','I','J'];
-                $i = 0;
-                foreach ($jsonContent[0] as $record)
-                {
-                    foreach ($record as $k => $r)
-                    {
-                        var_dump($l[$i]);
-                        $sheet->setCellValue($l[$i].'1', $k);
-                        if ($i == 9) {
-                            break;
-                        }
-                        $i++;
-                    }
-                    if ($i == 9) {
-                        break;
-                    }
-                }
-
-//                // Save the spreadsheet to a file
-                $filename = $directory.'converted.xlsx';
-                $writer = new Xlsx($spreadsheet);
-                $writer->save($filename);
-
-
-                $response->getBody()->write('FILE SAVED IN : '.$filename);
-                return $response
-                    ->withHeader('Content-Type', 'application/json')
-                    ->withStatus(200);
-            }
-            else {
-                $response->getBody()->write('file error');
-                return $response
-                    ->withHeader('content-type','application/json')
-                    ->withStatus(500);
-            }
+        $directory = '/var/www/slim_app/storage/converted/';
+        // Create the directory if it doesn't exist
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
         }
-        else {
-            $response->getBody()->write('file not found');
-            return $response
-                ->withHeader('content-type','application/json')
-                ->withStatus(500);
+
+
+        $uploadedFile = $uploadedFiles['file'] ?? null;
+
+        if (!$uploadedFile || $uploadedFile->getError() !== UPLOAD_ERR_OK) {
+            $response->getBody()->write('File error or not found');
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
+
+        $jsonContent = json_decode($uploadedFile->getStream()->getContents(), true);
+
+        if (!$jsonContent || !isset($jsonContent[0])) {
+            $response->getBody()->write('Invalid JSON content');
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $columnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+        $lineCount = 2;
+
+        foreach ($jsonContent[0] as $record) {
+            $letterArrayPosition = 0;
+            foreach ($record as $key => $value) {
+                $sheet->setCellValue($columnLetters[$letterArrayPosition].'1', $key);
+                $sheet->setCellValue($columnLetters[$letterArrayPosition].$lineCount, $value);
+                $letterArrayPosition = ($letterArrayPosition + 1) % 10;
+            }
+            $lineCount++;
+        }
+
+        $filename = $directory.'converted.xlsx';
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($filename);
+
+        $response->getBody()->write('File saved in: '.$filename. '---' . json_encode($jsonContent));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
+
+
 
 
 

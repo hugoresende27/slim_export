@@ -54,12 +54,23 @@ services:
       - PMA_PORT=3306
       - MYSQL_ROOT_PASSWORD=secret
 
-#  rabbitmq:
-#    image: rabbitmq:management
-#    container_name: slim_rabbitmq
-#    environment:
-#      - RABBITMQ_DEFAULT_USER=guest
-#      - RABBITMQ_DEFAULT_PASS=guest
-#    ports:
-#      - '5672:5672'
-#      - '15672:15672'
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: slim_rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_DEFAULT_VHOST}
+#      - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_ERLANG_COOKIE}
+      - RABBITMQ_NODENAME=rabbit@2dce9cbe2909
+      - RABBITMQ_NODE_PORT=15672
+#    volumes:
+#      - rabbitmq_logs:/var/log/rabbitmq
+#      - rabbitmq_mnesia:/var/lib/rabbitmq/mnesia
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+volumes:
+  rabbitmq_logs:
+  rabbitmq_mnesia:

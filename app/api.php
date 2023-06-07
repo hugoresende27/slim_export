@@ -60,6 +60,9 @@ return function (App $app) {
         $group->post('/json-xlsx', [ToolsController::class, 'jsonToxlsx']);
 
 
+        //rabbitMQ
+        $group->get('/rabbitmq-connection', [RabbitMQController::class, 'testConnection']);
+
     });
 
 

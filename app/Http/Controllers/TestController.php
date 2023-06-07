@@ -36,10 +36,10 @@ class TestController
             ->withStatus(200);
     }
 
-    public function jsonToxlsx(Response $response)
+    public function rabbitMqConnection(Response $response)
     {
 
-        $response->getBody()->write('jsonToxlsx');
+        $response->getBody()->write('rabbitMqConnection');
 
         return $response
             ->withHeader('Content-Type', 'application/json')
