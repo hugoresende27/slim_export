@@ -43,7 +43,8 @@ return function (App $app) {
         $group->post('/companies/create', [CompaniesController::class, 'create']);
         $group->put('/companies/{id}', [CompaniesController::class, 'update']);
         $group->delete('/companies/{id}', [CompaniesController::class, 'destroy']);
-//        $group->get('/dev', [CompaniesController::class, 'sendCompanyCreateRabbitMQ']);
+        $group->delete('/companies', [CompaniesController::class, 'destroyAll']);
+        $group->post('/companies/create-mq', [CompaniesController::class, 'createCompanyRabbitMQ']);
 
         //portals controller
         $group->get('/portals', [PortaisController::class, 'index']);
@@ -62,6 +63,8 @@ return function (App $app) {
 
         //rabbitMQ
         $group->get('/rabbitmq-connection', [RabbitMQController::class, 'testConnection']);
+        $group->post('/rabbitmq-send/{message}', [RabbitMQController::class, 'sendMessage']);
+
 
     });
 

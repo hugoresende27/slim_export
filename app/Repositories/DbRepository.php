@@ -107,20 +107,29 @@ class DbRepository
     }
 
 
+
+
+    /**
+     * @param int $id
+     * @return bool
+     * @throws \Exception
+     */
     public function deleteCompany(int $id): bool
     {
-        try {
-            $sql = "DELETE FROM companies WHERE id = :id";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
-            $rowCount = $stmt->rowCount();
-            return $rowCount > 0;
-        } catch (PDOException $e) {
-            throw new \Exception($e->getMessage());
-        }
+        $sql = "DELETE FROM companies WHERE id = :id";
+        $params = [':id' => $id];
+        return $this->executeDeleteQuery($sql, $params);
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteAllCompanies(): bool
+    {
+        $sql = "DELETE FROM companies";
+        return $this->executeDeleteQuery($sql);
+    }
     /**
      * @param string $sql
      * @param array $data
@@ -148,6 +157,24 @@ class DbRepository
         $stmt->bindValue(':contract_start', $data['contract_start']);
         $stmt->bindValue(':contract_end', $data['contract_end']);
         return $stmt;
+    }
+
+    /**
+     * @param string $sql
+     * @param array $params
+     * @return bool
+     * @throws \Exception
+     */
+    private function executeDeleteQuery(string $sql, array $params = []): bool
+    {
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute($params);
+            $rowCount = $stmt->rowCount();
+            return $rowCount > 0;
+        } catch (PDOException $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
 

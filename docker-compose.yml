@@ -9,14 +9,17 @@ services:
       - '9000:9000'
     volumes:
       - .:/var/www/slim_app
-      - ./public/.env:/var/www/slim_app/public/.env
-      - ./public/.env:/var/www/slim_app/bootstrap/.env
+      - .env:/var/www/slim_app/.env
+      - .env:/var/www/slim_app/public/.env
+      - .env:/var/www/slim_app/bootstrap/.env
+
     environment:
       - MYSQL_HOST=db_slim_export
       - MYSQL_PORT=3307
       - MYSQL_USER=root
       - MYSQL_PASSWORD=secret
       - MYSQL_DATABASE=slim_export
+      - TZ=Europe/Lisbon # Set the timezone here
 
   nginx:
     container_name: slim_nginx
@@ -60,17 +63,8 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
-      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_DEFAULT_VHOST}
-#      - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_ERLANG_COOKIE}
-      - RABBITMQ_NODENAME=rabbit@2dce9cbe2909
-      - RABBITMQ_NODE_PORT=15672
-#    volumes:
-#      - rabbitmq_logs:/var/log/rabbitmq
-#      - rabbitmq_mnesia:/var/lib/rabbitmq/mnesia
     ports:
       - '5672:5672'
       - '15672:15672'
 
-volumes:
-  rabbitmq_logs:
-  rabbitmq_mnesia:
+

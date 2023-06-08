@@ -29,7 +29,7 @@ require __DIR__ . '/../app/Repositories/DbCrmRepository.php';
 require __DIR__ . '/../app/Repositories/DbRepository.php';
 
 //services
-require __DIR__.'/../app/Services/RabbitMQService.php';
+
 
 //commands
 

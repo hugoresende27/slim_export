@@ -22,25 +22,7 @@ class CompaniesController
     }
 
 
-    public function sendCompanyCreateRabbitMQ(Response $response)
-    {
 
-        $serviceRabbitMQ = new RabbitMQService();
-        $responseData = $serviceRabbitMQ->publish('Hello HUGO R');
-
-        return $this->createResponse($response, $responseData, 200);
-
-    }
-
-    public function consumeRabbitMQ(Response $response)
-    {
-
-        $serviceRabbitMQ = new RabbitMQService();
-        $responseData = $serviceRabbitMQ->consume();
-
-        return $this->createResponse($response, $responseData, 200);
-
-    }
 
     public function index(Response $response): Response
     {
@@ -89,6 +71,24 @@ class CompaniesController
 
     }
 
+
+    public function createCompanyRabbitMQ(Request $request, Response $response): Response
+    {
+        // Get the JSON data from the request body
+        $jsonData = $request->getBody()->getContents();
+        // Convert the JSON string to an associative array
+        $data = json_decode($jsonData, true);
+        $i = 0;
+        do {
+            $rabbit = new \RabbitMQController();
+            $rabbit->sendSQL($data);
+            $i++;
+        } while ($i < 1000);
+
+        return $this->createResponse($response, $data, 201);
+
+    }
+
     public function update(Request $request, Response $response, $id): Response
     {
         try {
@@ -122,6 +122,23 @@ class CompaniesController
                 return $this->createResponse($response, $responseData, 200);
             } else {
                 $responseData = ['message' => 'Company not found'];
+                return $this->createResponse($response, $responseData, 404);
+            }
+        } catch (PDOException $e) {
+            $error = ['message' => $e->getMessage()];
+            return $this->createResponse($response, $error, 500);
+        }
+    }
+
+    public function destroyAll(Response $response): Response
+    {
+        try {
+            $deleted = $this->dbRepository->deleteAllCompanies();
+            if ($deleted) {
+                $responseData = ['message' => 'All Companies deleted successfully'];
+                return $this->createResponse($response, $responseData, 200);
+            } else {
+                $responseData = ['message' => 'Error deleting all'];
                 return $this->createResponse($response, $responseData, 404);
             }
         } catch (PDOException $e) {

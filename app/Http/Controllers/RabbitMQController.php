@@ -20,7 +20,8 @@ class RabbitMQController
         $this->rabbitMQPort = $_ENV['MQ_PORT'];
         $this->rabbitMQUser = $_ENV['MQ_USER'];
         $this->rabbitMQPassword = $_ENV['MQ_PASS'];
-        $this->rabbitMQQueue = 'hello'; // Queue name for testing purposes
+        $this->rabbitMQQueueTests = 'tests'; // Queue name for testing purposes
+        $this->rabbitMQQueueSQL = 'sql'; // Queue name for sql purposes
     }
 
     public function testConnection(Request $request, Response $response)
@@ -30,16 +31,20 @@ class RabbitMQController
             // Create a connection to RabbitMQ
             $connection = new AMQPStreamConnection($this->rabbitMQHost, $this->rabbitMQPort, $this->rabbitMQUser, $this->rabbitMQPassword);
 
-            dd($connection);
+
             // Create a channel
             $channel = $connection->channel();
 
             // Declare the queue
-            $channel->queue_declare($this->rabbitMQQueue, false, false, false, false);
+            $channel->queue_declare($this->rabbitMQQueueTests, false, false, false, false);
 
             // Send a test message
-            $message = new AMQPMessage('Hello, World!');
-            $channel->basic_publish($message, '', $this->rabbitMQQueue);
+            for ($i = 0 ; $i < 10 ; $i++)
+            {
+                $message = new AMQPMessage('--'.$i.'--'.$_ENV['APP_NAME']);
+                $channel->basic_publish($message, '', $this->rabbitMQQueueTests);
+            }
+
 
             // Close the channel and connection
             $channel->close();
@@ -54,5 +59,53 @@ class RabbitMQController
             return $response->withStatus(500);
         }
     }
+
+    public function sendMessage($message, Response $response)
+    {
+
+        $currentTime = new DateTime();
+        $currentTime->add(new DateInterval('PT1H'));//add one hour
+        $currentTime = $currentTime->format('Y-m-d H:i:s');
+
+
+        $message = $message.$currentTime;
+        $connection = new AMQPStreamConnection($this->rabbitMQHost, $this->rabbitMQPort, $this->rabbitMQUser, $this->rabbitMQPassword);
+        $channel = $connection->channel();
+
+        $channel->queue_declare($this->rabbitMQQueueTests, false, false, false, false);
+
+        $msg = new AMQPMessage($message);
+        $channel->basic_publish($msg, '', $this->rabbitMQQueueTests);
+
+
+        $channel->close();
+        $connection->close();
+        // Return a success response
+        $response->getBody()->write('message send with success :: '.$message);
+        return $response->withStatus(200);
+    }
+
+
+    public function sendSQL(array $data)
+    {
+
+
+        $connection = new AMQPStreamConnection($this->rabbitMQHost, $this->rabbitMQPort, $this->rabbitMQUser, $this->rabbitMQPassword);
+        $channel = $connection->channel();
+
+        $channel->queue_declare($this->rabbitMQQueueSQL, false, false, false, false);
+
+        $msg = new AMQPMessage(json_encode($data));
+        $channel->basic_publish($msg, '', $this->rabbitMQQueueSQL);
+
+
+        $channel->close();
+        $connection->close();
+
+    }
+
+
+
+
 }
 
