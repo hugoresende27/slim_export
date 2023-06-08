@@ -7,18 +7,19 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 use Repositories\DbCrmRepository;
 use Repositories\DbRepository;
-use Services\RabbitMQService;
 
 
 class CompaniesController
 {
     private DbCrmRepository $dbCrmRepository;
     private DbRepository $dbRepository;
+    private \RabbitMQController $rabbitController;
 
-    public function __construct(DbCrmRepository $dbCrmRepository, DbRepository $dbRepository)
+    public function __construct(DbCrmRepository $dbCrmRepository, DbRepository $dbRepository, \RabbitMQController $rabbitController)
     {
         $this->dbCrmRepository = $dbCrmRepository;
         $this->dbRepository = $dbRepository;
+        $this->rabbitController = $rabbitController;
     }
 
 
@@ -78,14 +79,11 @@ class CompaniesController
         $jsonData = $request->getBody()->getContents();
         // Convert the JSON string to an associative array
         $data = json_decode($jsonData, true);
-        $i = 0;
-        do {
-            $rabbit = new \RabbitMQController();
-            $rabbit->sendSQL($data);
-            $i++;
-        } while ($i < 1000);
 
-        return $this->createResponse($response, $data, 201);
+        $this->rabbitController->sendSQL('create_company', $data);
+
+
+        return $this->createResponse($response, 'rabbitMQ-create-company', 201);
 
     }
 
@@ -110,6 +108,20 @@ class CompaniesController
             $error = ['message' => $e->getMessage()];
             return $this->createResponse($response, $error, 500);
         }
+    }
+    public function updateCompanyRabbitMQ(Request $request, Response $response, $id): Response
+    {
+
+        // Get the JSON data from the request body
+        $jsonData = $request->getBody()->getContents();
+        // Convert the JSON string to an associative array
+        $data = json_decode($jsonData, true);
+        $data['id'] = $id;
+
+        $this->rabbitController->sendSQL('update_company', $data);
+
+        return $this->createResponse($response, 'rabbitMQ-update-company '.$id, 201);
+
     }
 
 

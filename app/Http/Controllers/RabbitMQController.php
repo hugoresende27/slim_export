@@ -11,7 +11,8 @@ class RabbitMQController
     private $rabbitMQPort;
     private $rabbitMQUser;
     private $rabbitMQPassword;
-    private $rabbitMQQueue;
+    private string $rabbitMQQueueTests;
+    private string $rabbitMQQueueSQL;
 
     public function __construct()
     {
@@ -24,7 +25,13 @@ class RabbitMQController
         $this->rabbitMQQueueSQL = 'sql'; // Queue name for sql purposes
     }
 
-    public function testConnection(Request $request, Response $response)
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function testConnection(Request $request, Response $response): Response
     {
         try {
 
@@ -60,7 +67,14 @@ class RabbitMQController
         }
     }
 
-    public function sendMessage($message, Response $response)
+
+    /**
+     * @param $message
+     * @param Response $response
+     * @return Response
+     * @throws Exception
+     */
+    public function sendMessage($message, Response $response): Response
     {
 
         $currentTime = new DateTime();
@@ -86,23 +100,33 @@ class RabbitMQController
     }
 
 
-    public function sendSQL(array $data)
+    public function sendSQL(string $action, $data = null): bool
     {
+        try {
+            $connection = new AMQPStreamConnection($this->rabbitMQHost, $this->rabbitMQPort, $this->rabbitMQUser, $this->rabbitMQPassword);
+            $channel = $connection->channel();
 
+            $channel->queue_declare($this->rabbitMQQueueSQL, false, false, false, false);
+            $message = [
+                'action' => $action,
+                'data' => $data,
+            ];
 
-        $connection = new AMQPStreamConnection($this->rabbitMQHost, $this->rabbitMQPort, $this->rabbitMQUser, $this->rabbitMQPassword);
-        $channel = $connection->channel();
+            $msg = new AMQPMessage(json_encode($message));
+            $channel->basic_publish($msg, '', $this->rabbitMQQueueSQL);
 
-        $channel->queue_declare($this->rabbitMQQueueSQL, false, false, false, false);
+            $channel->close();
+            $connection->close();
 
-        $msg = new AMQPMessage(json_encode($data));
-        $channel->basic_publish($msg, '', $this->rabbitMQQueueSQL);
-
-
-        $channel->close();
-        $connection->close();
-
+            return true; // Operation succeeded
+        } catch (Exception $e) {
+            // Handle any exceptions or errors that occurred during the operation
+            // Log the error or perform any necessary error handling
+            dd($e);
+            return false; // Operation failed
+        }
     }
+
 
 
 
