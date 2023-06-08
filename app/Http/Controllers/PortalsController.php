@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Repositories\DbCrmRepository;
 
-class PortaisController
+class PortalsController
 {
     private DbCrmRepository $dbCrmRepository;
 

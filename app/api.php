@@ -2,7 +2,7 @@
 
 
 use Http\Controllers\CompaniesController;
-use Http\Controllers\PortaisController;
+use Http\Controllers\PortalsController;
 use Http\Controllers\TestController;
 use Http\Controllers\ToolsController;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -35,9 +35,11 @@ return function (App $app) {
     $app->group('/api', function (Group $group) {
 
         //companies controller
+        //crm
         $group->get('/companies', [CompaniesController::class, 'index']);
-        $group->get('/companies/crm/all', [CompaniesController::class, 'getCompaniesCrm']);
+        $group->get('/companies/crm', [CompaniesController::class, 'getCompaniesCrm']);
         $group->get('/companies/crm/{id}', [CompaniesController::class, 'getCompaniesCrm']);
+        //db
         $group->get('/companies/all', [CompaniesController::class, 'getCompanies']);
         $group->get('/companies/{id}', [CompaniesController::class, 'getCompanies']);
         $group->post('/companies/create', [CompaniesController::class, 'create']);
@@ -45,13 +47,14 @@ return function (App $app) {
         $group->delete('/companies/{id}', [CompaniesController::class, 'destroy']);
         $group->delete('/companies', [CompaniesController::class, 'destroyAll']);
         //using rabbitMQ
-        $group->post('/companies/create-mq', [CompaniesController::class, 'createCompanyRabbitMQ']);
+        $group->post('/companies-mq/create', [CompaniesController::class, 'createCompanyRabbitMQ']);
         $group->put('/companies-mq/{id}', [CompaniesController::class, 'updateCompanyRabbitMQ']);
+        $group->get('/companies-mq/crm-copy', [CompaniesController::class, 'copyCompaniesCrm']);
 
         //portals controller
-        $group->get('/portals', [PortaisController::class, 'index']);
-        $group->get('/portals/all', [PortaisController::class, 'getPortals']);
-        $group->get('/portals/{id}', [PortaisController::class, 'getPortals']);
+        $group->get('/portals', [PortalsController::class, 'index']);
+        $group->get('/portals/all', [PortalsController::class, 'getPortals']);
+        $group->get('/portals/{id}', [PortalsController::class, 'getPortals']);
 
 
         //test controller

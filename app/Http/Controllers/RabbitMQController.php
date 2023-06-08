@@ -115,6 +115,7 @@ class RabbitMQController
             $msg = new AMQPMessage(json_encode($message));
             $channel->basic_publish($msg, '', $this->rabbitMQQueueSQL);
 
+
             $channel->close();
             $connection->close();
 
@@ -122,7 +123,6 @@ class RabbitMQController
         } catch (Exception $e) {
             // Handle any exceptions or errors that occurred during the operation
             // Log the error or perform any necessary error handling
-            dd($e);
             return false; // Operation failed
         }
     }

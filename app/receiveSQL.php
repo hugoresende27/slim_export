@@ -47,17 +47,17 @@ class receiveSQL
 
     private function processMessage($msg)
     {
-//        echo ' [x] Message: ', $msg->body, "\n";
-
+        echo ' [x] Message: ', $msg->body, "\n";
         $arrayData = json_decode($msg->body, true);
-        echo ' [x] Message: ', $arrayData['action'], "\n";
+        var_dump($msg->body);
+//        echo ' [x] Message: ', $arrayData['action'], "\n";
         if ($arrayData['action'] == 'create_company') {
             $result = $this->repository->createNewCompany($arrayData['data']);
         } else if ($arrayData['action'] == 'update_company') {
             $result = $this->repository->updateCompany($arrayData['data']['id'], $arrayData['data']);
         }
 
-        var_dump($result ?? 'nothing to declare');
+//        var_dump($arrayData ?? 'nothing to declare');
     }
 }
 

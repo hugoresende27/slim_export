@@ -5,6 +5,7 @@ use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+use RabbitMQController;
 use Repositories\DbCrmRepository;
 use Repositories\DbRepository;
 
@@ -13,9 +14,14 @@ class CompaniesController
 {
     private DbCrmRepository $dbCrmRepository;
     private DbRepository $dbRepository;
-    private \RabbitMQController $rabbitController;
+    private RabbitMQController $rabbitController;
 
-    public function __construct(DbCrmRepository $dbCrmRepository, DbRepository $dbRepository, \RabbitMQController $rabbitController)
+    /**
+     * @param DbCrmRepository $dbCrmRepository
+     * @param DbRepository $dbRepository
+     * @param RabbitMQController $rabbitController
+     */
+    public function __construct(DbCrmRepository $dbCrmRepository, DbRepository $dbRepository, RabbitMQController $rabbitController)
     {
         $this->dbCrmRepository = $dbCrmRepository;
         $this->dbRepository = $dbRepository;
@@ -23,8 +29,10 @@ class CompaniesController
     }
 
 
-
-
+    /**
+     * @param Response $response
+     * @return Response
+     */
     public function index(Response $response): Response
     {
         $responseData = ['message' => 'Companies Controller index()'];
@@ -33,6 +41,12 @@ class CompaniesController
     }
 
 
+    /**
+     * @param Response $response
+     * @param $id
+     * @return Response
+     * @throws \Exception
+     */
     public function getCompaniesCrm(Response $response, $id = null): Response
     {
 
@@ -46,6 +60,12 @@ class CompaniesController
     }
 
 
+    /**
+     * @param Response $response
+     * @param $id
+     * @return Response
+     * @throws \Exception
+     */
     public function getCompanies(Response $response, $id = null): Response
     {
 
@@ -59,6 +79,53 @@ class CompaniesController
     }
 
 
+    public function copyCompaniesCrm(Response $response): Response
+    {
+
+        $responseData = ['message' => 'Copy from crm'];
+
+        $crmCompanies = $this->dbCrmRepository->getCompanies();
+        foreach ($crmCompanies as $company)
+        {
+
+            if ($company['data_inicio_contrato'] == '0000-00-00' || $company['data_fim_contrato'] == '0000-00-00')
+            {
+                $date = '2023-01-01';
+            } else {
+                $date = $company['data_inicio_contrato'];
+            }
+            $arrayData = [
+                'internal_id' => $company['id'],
+                'other_id' => $company['id'], // Assuming the same ID is used for both internal and other ID
+                'company_social_name' => utf8_encode($company['designacao_social']),
+                'company_comercial_name' => utf8_encode($company['designacao_comercial']),
+                'email' => '', // Add the appropriate email field from the $company array
+                'nif' => $company['nif'],
+                'permit' => $company['ami'], // Add the appropriate permit field from the $company array
+                'linkedin' => utf8_encode($company['linkedin']),
+                'facebook' => utf8_encode($company['facebook']),
+                'instagram' => utf8_encode($company['instagram']),
+                'youtube' => utf8_encode($company['youtube']),
+                'twitter' => utf8_encode($company['twitter']),
+                'google' => utf8_encode($company['google']),
+                'value_paid' => 0.0, // Add the appropriate value paid field from the $company array
+                'observations' =>utf8_encode( $company['observacoes']),
+                'contract_start' => $date,
+                'contract_end' => $date
+            ];
+
+            $this->rabbitController->sendSQL('create_company', $arrayData) ;
+        }
+
+        return $this->createResponse($response, $responseData, 200);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     * @throws \Exception
+     */
     public function create(Request $request, Response $response): Response
     {
         // Get the JSON data from the request body
@@ -73,12 +140,20 @@ class CompaniesController
     }
 
 
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
     public function createCompanyRabbitMQ(Request $request, Response $response): Response
     {
         // Get the JSON data from the request body
         $jsonData = $request->getBody()->getContents();
         // Convert the JSON string to an associative array
         $data = json_decode($jsonData, true);
+
+        var_dump($data);
+        die();
 
         $this->rabbitController->sendSQL('create_company', $data);
 
@@ -87,6 +162,13 @@ class CompaniesController
 
     }
 
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param $id
+     * @return Response
+     * @throws \Exception
+     */
     public function update(Request $request, Response $response, $id): Response
     {
         try {
@@ -109,6 +191,13 @@ class CompaniesController
             return $this->createResponse($response, $error, 500);
         }
     }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param $id
+     * @return Response
+     */
     public function updateCompanyRabbitMQ(Request $request, Response $response, $id): Response
     {
 
@@ -125,6 +214,12 @@ class CompaniesController
     }
 
 
+    /**
+     * @param Response $response
+     * @param $id
+     * @return Response
+     * @throws \Exception
+     */
     public function destroy(Response $response, $id): Response
     {
         try {
@@ -142,6 +237,12 @@ class CompaniesController
         }
     }
 
+
+    /**
+     * @param Response $response
+     * @return Response
+     * @throws \Exception
+     */
     public function destroyAll(Response $response): Response
     {
         try {
@@ -160,7 +261,14 @@ class CompaniesController
     }
 
 
-    ////* AUX PRIVATE FUNCTIONS *////
+    ////* AUX PRIVATE FUNCTIONS *///////////////////////////
+
+    /**
+     * @param Response $response
+     * @param $data
+     * @param $status
+     * @return Response
+     */
     private function createResponse(Response $response, $data, $status): Response
     {
 
@@ -171,6 +279,10 @@ class CompaniesController
     }
 
 
+    /**
+     * @param array $array
+     * @return array|false|string|null
+     */
     private function auxData(array $array): array|false|string|null
     {
         $arrayToReturn = [];
@@ -180,6 +292,8 @@ class CompaniesController
         }
         return mb_convert_encoding($arrayToReturn, 'UTF-8', 'UTF-8');
     }
+
+
 
 
 

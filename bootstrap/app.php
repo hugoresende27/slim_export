@@ -18,7 +18,7 @@ require_once __DIR__ . '/../app/helpers.php';
 
 
 //controllers
-require __DIR__ . '/../app/Http/Controllers/PortaisController.php';
+require __DIR__ . '/../app/Http/Controllers/PortalsController.php';
 require __DIR__ . '/../app/Http/Controllers/TestController.php';
 require __DIR__ . '/../app/Http/Controllers/CompaniesController.php';
 require __DIR__ . '/../app/Http/Controllers/ToolsController.php';
