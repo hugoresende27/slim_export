@@ -49,15 +49,14 @@ class receiveSQL
     {
         echo ' [x] Message: ', $msg->body, "\n";
         $arrayData = json_decode($msg->body, true);
-        var_dump($msg->body);
-//        echo ' [x] Message: ', $arrayData['action'], "\n";
+
         if ($arrayData['action'] == 'create_company') {
-            $result = $this->repository->createNewCompany($arrayData['data']);
+            $this->repository->createNewCompany($arrayData['data']);
         } else if ($arrayData['action'] == 'update_company') {
-            $result = $this->repository->updateCompany($arrayData['data']['id'], $arrayData['data']);
+            $this->repository->updateCompany($arrayData['data']['internal_id'], $arrayData['data']);
         }
 
-//        var_dump($arrayData ?? 'nothing to declare');
+
     }
 }
 

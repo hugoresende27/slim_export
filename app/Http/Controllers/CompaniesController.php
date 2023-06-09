@@ -1,6 +1,8 @@
 <?php
 namespace Http\Controllers;
 
+use DateInterval;
+use DateTime;
 use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -85,8 +87,14 @@ class CompaniesController
         $responseData = ['message' => 'Copy from crm'];
 
         $crmCompanies = $this->dbCrmRepository->getCompanies();
+
         foreach ($crmCompanies as $company)
         {
+            $currentTime = new DateTime();
+            $currentTime->add(new DateInterval('PT1H'));//add one hour
+            $currentTime = $currentTime->format('Y-m-d H:i:s');
+            $internalId = $company['id'];
+            $existingCompany = $this->dbRepository->findByInternalId($internalId);
 
             if ($company['data_inicio_contrato'] == '0000-00-00' || $company['data_fim_contrato'] == '0000-00-00')
             {
@@ -111,10 +119,20 @@ class CompaniesController
                 'value_paid' => 0.0, // Add the appropriate value paid field from the $company array
                 'observations' =>utf8_encode( $company['observacoes']),
                 'contract_start' => $date,
-                'contract_end' => $date
+                'contract_end' => $date,
+                'updated_at' => $currentTime
             ];
 
-            $this->rabbitController->sendSQL('create_company', $arrayData) ;
+            if (count($existingCompany) > 0) {
+                $this->rabbitController->sendSQL('update_company', $arrayData) ;
+            } else {
+                $this->rabbitController->sendSQL('create_company', $arrayData) ;
+            }
+
+
+
+
+
         }
 
         return $this->createResponse($response, $responseData, 200);
@@ -151,9 +169,6 @@ class CompaniesController
         $jsonData = $request->getBody()->getContents();
         // Convert the JSON string to an associative array
         $data = json_decode($jsonData, true);
-
-        var_dump($data);
-        die();
 
         $this->rabbitController->sendSQL('create_company', $data);
 

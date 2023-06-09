@@ -26,6 +26,7 @@ return function (App $app) {
 
     //
     $app->get('/', function (Request $request, Response $response) {
+        
         $response->getBody()->write($_ENV['APP_NAME']);
         return $response;
     });
@@ -56,11 +57,11 @@ return function (App $app) {
         $group->get('/portals/all', [PortalsController::class, 'getPortals']);
         $group->get('/portals/{id}', [PortalsController::class, 'getPortals']);
 
-
         //test controller
         $group->get('/test', [TestController::class, 'index']);
         $group->get('/test/friends', [TestController::class, 'friendsDbTest']);
         $group->get('/test/user', [TestController::class, 'userInfo']);
+
 
         //json_excel convertor
         $group->post('/json-xlsx', [ToolsController::class, 'jsonToxlsx']);
@@ -70,6 +71,8 @@ return function (App $app) {
         $group->get('/rabbitmq-connection', [RabbitMQController::class, 'testConnection']);
         $group->post('/rabbitmq-send/{message}', [RabbitMQController::class, 'sendMessage']);
 
+        //mongoDB
+        $group->get('/mongo-connection', [TestController::class, 'mongoTest']);
 
     });
 

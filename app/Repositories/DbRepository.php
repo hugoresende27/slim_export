@@ -2,6 +2,8 @@
 
 namespace Repositories;
 use config\Db;
+use DateInterval;
+use DateTime;
 use PDO;
 use PDOException;
 
@@ -24,11 +26,17 @@ class DbRepository
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         }
 
+
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @param int|null $id
+     * @return array
+     * @throws \Exception
+     */
     public function getCompanies(int $id = null): array
     {
         try {
@@ -44,6 +52,24 @@ class DbRepository
         }
     }
 
+
+    /**
+     * @param int $internal_id
+     * @return array
+     * @throws \Exception
+     */
+    public function findByInternalId(int $id ): array
+    {
+        try {
+            $sql = "SELECT * FROM companies WHERE internal_id = ".$id;
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
     public function createNewCompany(array $data): int
     {
         try {
@@ -51,11 +77,11 @@ class DbRepository
             INSERT INTO companies (
                 internal_id, other_id, company_social_name, company_comercial_name,
                 email, nif, permit, linkedin, facebook, instagram, youtube, twitter,
-                google, value_paid, observations, contract_start, contract_end
+                google, value_paid, observations, contract_start, contract_end, updated_at
             ) VALUES (
                 :internal_id, :other_id, :company_social_name, :company_comercial_name,
                 :email, :nif, :permit, :linkedin, :facebook, :instagram, :youtube, :twitter,
-                :google, :value_paid, :observations, :contract_start, :contract_end
+                :google, :value_paid, :observations, :contract_start, :contract_end, :updated_at
             )
         ";
 
@@ -71,6 +97,9 @@ class DbRepository
 
     public function updateCompany(int $id, array $data): bool
     {
+
+
+
         try {
             $sql = "
             UPDATE companies SET
@@ -90,7 +119,8 @@ class DbRepository
                 value_paid = :value_paid,
                 observations = :observations,
                 contract_start = :contract_start,
-                contract_end = :contract_end
+                contract_end = :contract_end,
+                updated_at = :updated_at
             WHERE id = :id
         ";
 
@@ -102,6 +132,7 @@ class DbRepository
             $rowCount = $stmt->rowCount();
             return $rowCount > 0;
         } catch (PDOException $e) {
+            dd($e);
             throw new \Exception($e->getMessage());
         }
     }
@@ -156,6 +187,7 @@ class DbRepository
         $stmt->bindValue(':observations', $data['observations']);
         $stmt->bindValue(':contract_start', $data['contract_start']);
         $stmt->bindValue(':contract_end', $data['contract_end']);
+        $stmt->bindValue(':updated_at', $data['updated_at']);
         return $stmt;
     }
 

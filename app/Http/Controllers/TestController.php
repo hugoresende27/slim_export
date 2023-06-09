@@ -1,8 +1,11 @@
 <?php
 
 namespace Http\Controllers;
-
+use MongoDB\Client;
+use Exception;
+use MongoDB\Driver\ServerApi;
 use config\Db;
+
 use PDO;
 use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -13,6 +16,7 @@ class TestController
 
     public function index(Response $response)
     {
+
 
         $response->getBody()->write(json_encode($_ENV));
 
@@ -74,5 +78,22 @@ class TestController
                 ->withStatus(500);
 
         }
+    }
+
+    public function mongoTest()
+    {
+        $uri = 'mongodb://atlas-sql-61b51f3eed4e692d36d8568a-afhxb.a.query.mongodb.net/aluraBD?ssl=true&authSource=admin';
+        // Specify Stable API version 1
+        $apiVersion = new ServerApi(ServerApi::V1);
+        // Create a new client and connect to the server
+        $client = new Client($uri, [], ['serverApi' => $apiVersion]);
+        try {
+            // Send a ping to confirm a successful connection
+            $client->selectDatabase('admin')->command(['ping' => 1]);
+            echo "Pinged your deployment. You successfully connected to MongoDB!\n";
+        } catch (Exception $e) {
+            printf($e->getMessage());
+        }
+
     }
 }
