@@ -87,6 +87,7 @@ class DbRepository
 
             $stmt = $this->bindValuesSQL($sql, $data);
 
+
             $stmt->execute();
 
             return $this->conn->lastInsertId();
@@ -124,15 +125,16 @@ class DbRepository
             WHERE id = :id
         ";
 
+
             $stmt = $this->bindValuesSQL($sql, $data);
+
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-
             $stmt->execute();
-
             $rowCount = $stmt->rowCount();
+
             return $rowCount > 0;
         } catch (PDOException $e) {
-            dd($e);
+
             throw new \Exception($e->getMessage());
         }
     }

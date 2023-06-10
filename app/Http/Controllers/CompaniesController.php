@@ -192,13 +192,15 @@ class CompaniesController
             // Convert the JSON string to an associative array
             $data = json_decode($jsonData, true);
 
+
             $updated = $this->dbRepository->updateCompany($id, $data);
+
 
             if ($updated) {
                 $responseData = ['message' => 'Company updated successfully'];
                 return $this->createResponse($response, $responseData, 200);
             } else {
-                $responseData = ['message' => 'Company not found'];
+                $responseData = ['message' => 'No changes made'];
                 return $this->createResponse($response, $responseData, 404);
             }
         } catch (PDOException $e) {
