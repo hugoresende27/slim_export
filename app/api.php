@@ -73,7 +73,7 @@ return function (App $app) {
 
         //mongoDB
         $group->get('/mongo-connection', [TestController::class, 'mongoConnectTest']);
-        $group->get('/companies-mongo/all', [CompaniesController::class, 'getCompaniesMongoDB']);
+        $group->get('/companies-mongo/all', [CompaniesController::class, 'getCompaniesMongo']);
         $group->post('/companies-mongo/create', [CompaniesController::class, 'createCompanyMongo']);
         $group->put('/companies-mongo/{id}', [CompaniesController::class, 'updateCompanyMongo']);
         $group->delete('/companies-mongo/{id}', [CompaniesController::class, 'destroyMongo']);

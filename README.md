@@ -29,6 +29,7 @@
 
 #### rabbitMQ
 - https://github.com/php-amqplib/php-amqplib
+- to run rabbitMQ run file app/receiveSQL.php
 
 ------------------------------------------------
 #### MongoDB

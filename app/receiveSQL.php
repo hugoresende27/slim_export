@@ -3,19 +3,23 @@
 require __DIR__. '/../bootstrap/app.php';
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use Repositories\DbMongoRepository;
 use Repositories\DbRepository;
 
 
 class receiveSQL
 {
     private string $rabbitMqQueue;
-    private DbRepository $repository;
+    private DbRepository $DbRepository;
+    private DbMongoRepository $dbMongoRepository;
+    private string $collectionName = 'companies';
 
 
-    public function __construct(string $rabbitMqQueue, DbRepository $repository)
+    public function __construct(string $rabbitMqQueue, DbRepository $DbRepository)
     {
         $this->rabbitMqQueue = $rabbitMqQueue;
-        $this->repository = $repository;
+        $this->DbRepository = $DbRepository;
+        $this->dbMongoRepository = new DbMongoRepository($this->collectionName);;
     }
 
     public function startReceiving()
@@ -50,10 +54,16 @@ class receiveSQL
         echo ' [x] Message: ', $msg->body, "\n";
         $arrayData = json_decode($msg->body, true);
 
+//        echo ' [x] Message: ', $arrayData['action'].' --- '.$arrayData['data']['id'] ?? $arrayData['data']['internal_id'], "\n";
+
         if ($arrayData['action'] == 'create_company') {
-            $this->repository->createNewCompany($arrayData['data']);
+            $this->DbRepository->createNewCompany($arrayData['data']);
         } else if ($arrayData['action'] == 'update_company') {
-            $r = $this->repository->updateCompany($arrayData['data']['id'], $arrayData['data']);
+            $r = $this->DbRepository->updateCompany($arrayData['data']['id'] ?? $arrayData['data']['internal_id'], $arrayData['data']);
+        } else if ($arrayData['action'] == 'create_company_mongo') {
+            $this->dbMongoRepository->create($arrayData['data']);
+        } else if ($arrayData['action'] == 'update_company_mongo') {
+            $this->dbMongoRepository->update($arrayData['data']['id'] ?? $arrayData['data']['internal_id'],$arrayData['data']);
         }
 
 
@@ -61,9 +71,9 @@ class receiveSQL
 }
 
 $rabbitMqQueue = 'sql';
-$repository = new DbRepository();
+$DbRepository = new DbRepository();
 
 
-$receiver = new receiveSQL($rabbitMqQueue, $repository);
+$receiver = new receiveSQL($rabbitMqQueue, $DbRepository);
 $receiver->startReceiving();
 

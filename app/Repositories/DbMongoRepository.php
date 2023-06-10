@@ -2,6 +2,7 @@
 
 namespace Repositories;
 use config\DbMongo;
+use Exception;
 use MongoDB\Collection;
 use MongoDB\BSON\ObjectID;
 
@@ -49,6 +50,30 @@ class DbMongoRepository
         return array_map(function ($document) {
             return (array)$document;
         }, $documents);
+    }
+
+    /**
+     * @param int $id
+     * @return array|false[]
+     * @throws Exception
+     */
+    public function findByInternalId(int $id): array
+    {
+        $collection = $this->getCollection();
+        try {
+            $filter = ['internal_id' => $id];
+            $options = [];
+
+            $result = $collection->findOne($filter, $options);
+
+            if ($result !== null) {
+                return ['exists' => true, 'document' => $result];
+            } else {
+                return ['exists' => false];
+            }
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 
     /**

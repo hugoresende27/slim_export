@@ -210,6 +210,8 @@ class CompaniesController
             $currentTime = $currentTime->format('Y-m-d H:i:s');
             $internalId = $company['id'];
             $existingCompany = $this->dbRepository->findByInternalId($internalId);
+            $existingCompanyMongo = $this->dbMongoRepository->findByInternalId($internalId);
+
 
             if ($company['data_inicio_contrato'] == '0000-00-00' || $company['data_fim_contrato'] == '0000-00-00')
             {
@@ -242,6 +244,12 @@ class CompaniesController
                 $this->rabbitController->sendSQL('update_company', $arrayData) ;
             } else {
                 $this->rabbitController->sendSQL('create_company', $arrayData) ;
+            }
+
+            if (count($existingCompanyMongo) > 0) {
+                $this->rabbitController->sendSQL('update_company_mongo', $arrayData) ;
+            } else {
+                $this->rabbitController->sendSQL('create_company_mongo', $arrayData) ;
             }
 
 
@@ -298,7 +306,7 @@ class CompaniesController
      * @param Response $response
      * @return Response
      */
-    public function getCompaniesMongoDB(Response $response): Response
+    public function getCompaniesMongo(Response $response): Response
     {
 
         $res = $this->dbMongoRepository->findAll();
