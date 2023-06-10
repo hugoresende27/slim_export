@@ -54,7 +54,6 @@ class receiveSQL
             $this->repository->createNewCompany($arrayData['data']);
         } else if ($arrayData['action'] == 'update_company') {
             $r = $this->repository->updateCompany($arrayData['data']['id'], $arrayData['data']);
-            var_dump($r);
         }
 
 
