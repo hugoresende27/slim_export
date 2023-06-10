@@ -4,6 +4,8 @@
 ### to enter mysql : sudo docker exec -it slim_mysql mysql -u root -p
 ### to enter root project : sudo docker exec -it slim_php /bin/bash
 ### to stop and remove images : docker-compose down --rmi all
+### get ip of docker container : sudo docker inspect slim_mongodb | grep "IPAddress"
+
 
 ------------------------------------------------
 ### Docker set-up tut
@@ -29,7 +31,12 @@
 - https://github.com/php-amqplib/php-amqplib
 
 ------------------------------------------------
+#### MongoDB
+- customize string connection : https://www.mongodb.com/docs/manual/reference/connection-string/
+
+
+------------------------------------------------
 #### TODO
-- use RabbitMQ 
+- use MongoDB 
 - CRUD for properties
 - export API

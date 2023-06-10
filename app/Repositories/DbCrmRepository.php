@@ -7,8 +7,8 @@ use PDOException;
 
 class DbCrmRepository
 {
-    private $db;
-    private $conn;
+    private DbCrm $db;
+    private PDO $conn;
 
     public function __construct()
     {

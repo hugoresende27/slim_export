@@ -1,6 +1,15 @@
 version: "3.8"
 
 services:
+
+#  myapplication:
+#    image: mongodb/mongodb-community-server:6.0-ubi8
+#    environment:
+#      - CONN_STR=mongodb://user:pass@mongodb
+#    command: '/bin/bash -c "sleep 5; mongosh $$CONN_STR --eval \"show dbs;\""'
+#    depends_on:
+#      - mongodb
+
   php:
     container_name: slim_php
     build:
@@ -20,6 +29,8 @@ services:
       - MYSQL_PASSWORD=secret
       - MYSQL_DATABASE=slim_export
       - TZ=Europe/Lisbon # Set the timezone here
+    depends_on:
+      - mongodb
 
   nginx:
     container_name: slim_nginx
@@ -58,8 +69,8 @@ services:
       - MYSQL_ROOT_PASSWORD=secret
 
   rabbitmq:
-    image: rabbitmq:management
     container_name: slim_rabbitmq
+    image: rabbitmq:management
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -67,4 +78,17 @@ services:
       - '5672:5672'
       - '15672:15672'
 
+  mongodb:
+    container_name: slim_mongodb
+    image: mongodb/mongodb-community-server:6.0-ubi8
+#    environment:
+#      - MONGODB_INITDB_ROOT_USERNAME=user
+#      - MONGODB_INITDB_ROOT_PASSWORD=pass
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data/db
+      - type: bind
+        source: ./mongodb-config/mongod.conf
+        target: /etc/mongod.conf
 

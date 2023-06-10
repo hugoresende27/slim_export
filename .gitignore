@@ -5,3 +5,4 @@
 /bootstrap/.env
 /.idea
 /docker/mysql
+/data/*

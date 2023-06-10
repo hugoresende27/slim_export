@@ -1,14 +1,17 @@
 <?php
 namespace Http\Controllers;
 
+use config\DbMongo;
 use DateInterval;
 use DateTime;
+use Exception;
 use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 use RabbitMQController;
 use Repositories\DbCrmRepository;
+use Repositories\DbMongoRepository;
 use Repositories\DbRepository;
 
 
@@ -17,17 +20,23 @@ class CompaniesController
     private DbCrmRepository $dbCrmRepository;
     private DbRepository $dbRepository;
     private RabbitMQController $rabbitController;
+    private DbMongoRepository $dbMongoRepository;
+    private string $collectionName = 'companies';
 
     /**
      * @param DbCrmRepository $dbCrmRepository
      * @param DbRepository $dbRepository
      * @param RabbitMQController $rabbitController
      */
-    public function __construct(DbCrmRepository $dbCrmRepository, DbRepository $dbRepository, RabbitMQController $rabbitController)
+    public function __construct(DbCrmRepository $dbCrmRepository,
+                                DbRepository $dbRepository,
+                                RabbitMQController $rabbitController,
+                                )
     {
         $this->dbCrmRepository = $dbCrmRepository;
         $this->dbRepository = $dbRepository;
         $this->rabbitController = $rabbitController;
+        $this->dbMongoRepository = new DbMongoRepository($this->collectionName);;
     }
 
 
@@ -43,30 +52,12 @@ class CompaniesController
     }
 
 
+    //////* CRUD *///////////////////////////////////////////
     /**
      * @param Response $response
      * @param $id
      * @return Response
-     * @throws \Exception
-     */
-    public function getCompaniesCrm(Response $response, $id = null): Response
-    {
-
-        try {
-            $companies = $this->dbCrmRepository->getCompanies($id);
-            return $this->createResponse($response,   $this->auxData($companies), 200);
-        } catch (PDOException $e) {
-            $error = [ 'message' => $e->getMessage()];
-            return $this->createResponse($response, $error, 404);
-        }
-    }
-
-
-    /**
-     * @param Response $response
-     * @param $id
-     * @return Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function getCompanies(Response $response, $id = null): Response
     {
@@ -81,6 +72,130 @@ class CompaniesController
     }
 
 
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     * @throws Exception
+     */
+    public function create(Request $request, Response $response): Response
+    {
+        // Get the JSON data from the request body
+        $jsonData = $request->getBody()->getContents();
+        // Convert the JSON string to an associative array
+        $data = json_decode($jsonData, true);
+        // Create a new company record
+        $company = $this->dbRepository->createNewCompany($data);
+        // Return a success response with the created company data
+        return $this->createResponse($response, $company, 201);
+
+    }
+
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param $id
+     * @return Response
+     * @throws Exception
+     */
+    public function update(Request $request, Response $response, $id): Response
+    {
+        try {
+            // Get the JSON data from the request body
+            $jsonData = $request->getBody()->getContents();
+            // Convert the JSON string to an associative array
+            $data = json_decode($jsonData, true);
+
+
+            $updated = $this->dbRepository->updateCompany($id, $data);
+
+
+            if ($updated) {
+                $responseData = ['message' => 'Company updated successfully'];
+                return $this->createResponse($response, $responseData, 200);
+            } else {
+                $responseData = ['message' => 'No changes made'];
+                return $this->createResponse($response, $responseData, 404);
+            }
+        } catch (PDOException $e) {
+            $error = ['message' => $e->getMessage()];
+            return $this->createResponse($response, $error, 500);
+        }
+    }
+
+    /**
+     * @param Response $response
+     * @param $id
+     * @return Response
+     * @throws Exception
+     */
+    public function destroy(Response $response, $id): Response
+    {
+        try {
+            $deleted = $this->dbMongoRepository->deleteCompany($id);
+            if ($deleted) {
+                $responseData = ['message' => 'Company deleted successfully'];
+                return $this->createResponse($response, $responseData, 200);
+            } else {
+                $responseData = ['message' => 'Company not found'];
+                return $this->createResponse($response, $responseData, 404);
+            }
+        } catch (PDOException $e) {
+            $error = ['message' => $e->getMessage()];
+            return $this->createResponse($response, $error, 500);
+        }
+    }
+
+
+
+
+    /**
+     * @param Response $response
+     * @return Response
+     * @throws Exception
+     */
+    public function destroyAll(Response $response): Response
+    {
+        try {
+            $deleted = $this->dbRepository->deleteAllCompanies();
+            if ($deleted) {
+                $responseData = ['message' => 'All Companies deleted successfully'];
+                return $this->createResponse($response, $responseData, 200);
+            } else {
+                $responseData = ['message' => 'Error deleting all'];
+                return $this->createResponse($response, $responseData, 404);
+            }
+        } catch (PDOException $e) {
+            $error = ['message' => $e->getMessage()];
+            return $this->createResponse($response, $error, 500);
+        }
+    }
+
+    ////////////* CRM ----- *///////////////////////////////
+    /**
+     * @param Response $response
+     * @param $id
+     * @return Response
+     * @throws Exception
+     */
+    public function getCompaniesCrm(Response $response, $id = null): Response
+    {
+
+        try {
+            $companies = $this->dbCrmRepository->getCompanies($id);
+            return $this->createResponse($response,   $this->auxData($companies), 200);
+        } catch (PDOException $e) {
+            $error = [ 'message' => $e->getMessage()];
+            return $this->createResponse($response, $error, 404);
+        }
+    }
+
+    /**
+     * @param Response $response
+     * @return Response
+     * @throws Exception
+     */
     public function copyCompaniesCrm(Response $response): Response
     {
 
@@ -137,27 +252,7 @@ class CompaniesController
 
         return $this->createResponse($response, $responseData, 200);
     }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @return Response
-     * @throws \Exception
-     */
-    public function create(Request $request, Response $response): Response
-    {
-        // Get the JSON data from the request body
-        $jsonData = $request->getBody()->getContents();
-        // Convert the JSON string to an associative array
-        $data = json_decode($jsonData, true);
-        // Create a new company record
-        $company = $this->dbRepository->createNewCompany($data);
-        // Return a success response with the created company data
-        return $this->createResponse($response, $company, 201);
-
-    }
-
-
+    ////////////* RABBIT MQ *///////////////////////////////
     /**
      * @param Request $request
      * @param Response $response
@@ -182,9 +277,54 @@ class CompaniesController
      * @param Response $response
      * @param $id
      * @return Response
-     * @throws \Exception
      */
-    public function update(Request $request, Response $response, $id): Response
+    public function updateCompanyRabbitMQ(Request $request, Response $response, $id): Response
+    {
+
+        // Get the JSON data from the request body
+        $jsonData = $request->getBody()->getContents();
+        // Convert the JSON string to an associative array
+        $data = json_decode($jsonData, true);
+        $data['id'] = $id;
+
+        $this->rabbitController->sendSQL('update_company', $data);
+
+        return $this->createResponse($response, 'rabbitMQ-update-company '.$id, 200);
+
+    }
+    ////////////* MONGO DB  *///////////////////////////////
+
+    /**
+     * @param Response $response
+     * @return Response
+     */
+    public function getCompaniesMongoDB(Response $response): Response
+    {
+
+        $res = $this->dbMongoRepository->findAll();
+        return $this->createResponse($response, ($res), 200);
+    }
+
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function createCompanyMongo(Request $request, Response $response): Response
+    {
+        // Get the JSON data from the request body
+        $jsonData = $request->getBody()->getContents();
+        // Convert the JSON string to an associative array
+        $data = json_decode($jsonData, true);
+        // Create a new company record
+        $company = $this->dbMongoRepository->create($data);
+        // Return a success response with the created company data
+        return $this->createResponse($response, $company, 201);
+
+    }
+
+    public function updateCompanyMongo(Request $request, Response $response, $id): Response
     {
         try {
             // Get the JSON data from the request body
@@ -193,7 +333,7 @@ class CompaniesController
             $data = json_decode($jsonData, true);
 
 
-            $updated = $this->dbRepository->updateCompany($id, $data);
+            $updated = $this->dbMongoRepository->update($id, $data);
 
 
             if ($updated) {
@@ -209,38 +349,10 @@ class CompaniesController
         }
     }
 
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @param $id
-     * @return Response
-     */
-    public function updateCompanyRabbitMQ(Request $request, Response $response, $id): Response
-    {
-
-        // Get the JSON data from the request body
-        $jsonData = $request->getBody()->getContents();
-        // Convert the JSON string to an associative array
-        $data = json_decode($jsonData, true);
-        $data['id'] = $id;
-
-        $this->rabbitController->sendSQL('update_company', $data);
-
-        return $this->createResponse($response, 'rabbitMQ-update-company '.$id, 201);
-
-    }
-
-
-    /**
-     * @param Response $response
-     * @param $id
-     * @return Response
-     * @throws \Exception
-     */
-    public function destroy(Response $response, $id): Response
+    public function destroyMongo(Response $response, $id): Response
     {
         try {
-            $deleted = $this->dbRepository->deleteCompany($id);
+            $deleted = $this->dbMongoRepository->delete($id);
             if ($deleted) {
                 $responseData = ['message' => 'Company deleted successfully'];
                 return $this->createResponse($response, $responseData, 200);
@@ -254,16 +366,10 @@ class CompaniesController
         }
     }
 
-
-    /**
-     * @param Response $response
-     * @return Response
-     * @throws \Exception
-     */
-    public function destroyAll(Response $response): Response
+    public function destroyAllMongo(Response $response): Response
     {
         try {
-            $deleted = $this->dbRepository->deleteAllCompanies();
+            $deleted = $this->dbMongoRepository->deleteAll();
             if ($deleted) {
                 $responseData = ['message' => 'All Companies deleted successfully'];
                 return $this->createResponse($response, $responseData, 200);
@@ -276,7 +382,6 @@ class CompaniesController
             return $this->createResponse($response, $error, 500);
         }
     }
-
 
     ////* AUX PRIVATE FUNCTIONS *///////////////////////////
 

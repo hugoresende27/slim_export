@@ -72,7 +72,12 @@ return function (App $app) {
         $group->post('/rabbitmq-send/{message}', [RabbitMQController::class, 'sendMessage']);
 
         //mongoDB
-        $group->get('/mongo-connection', [TestController::class, 'mongoTest']);
+        $group->get('/mongo-connection', [TestController::class, 'mongoConnectTest']);
+        $group->get('/companies-mongo/all', [CompaniesController::class, 'getCompaniesMongoDB']);
+        $group->post('/companies-mongo/create', [CompaniesController::class, 'createCompanyMongo']);
+        $group->put('/companies-mongo/{id}', [CompaniesController::class, 'updateCompanyMongo']);
+        $group->delete('/companies-mongo/{id}', [CompaniesController::class, 'destroyMongo']);
+        $group->delete('/companies-mongo', [CompaniesController::class, 'destroyAllMongo']);
 
     });
 

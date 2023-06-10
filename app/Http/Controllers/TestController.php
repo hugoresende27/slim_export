@@ -80,20 +80,22 @@ class TestController
         }
     }
 
-    public function mongoTest()
+    public function mongoConnectTest( Response $response)
     {
-        $uri = 'mongodb://atlas-sql-61b51f3eed4e692d36d8568a-afhxb.a.query.mongodb.net/aluraBD?ssl=true&authSource=admin';
-        // Specify Stable API version 1
-        $apiVersion = new ServerApi(ServerApi::V1);
-        // Create a new client and connect to the server
-        $client = new Client($uri, [], ['serverApi' => $apiVersion]);
+        $uri = $_ENV['MONGO_DB_URI'];
+
+        $client = new Client($uri);
         try {
             // Send a ping to confirm a successful connection
             $client->selectDatabase('admin')->command(['ping' => 1]);
-            echo "Pinged your deployment. You successfully connected to MongoDB!\n";
+            $msg = "Pinged your deployment. You successfully connected to MongoDB!\n";
         } catch (Exception $e) {
-            printf($e->getMessage());
+            $msg = printf($e->getMessage());
         }
+        $response->getBody()->write(json_encode($msg));
+        return $response
+            ->withHeader('content-type','application/json')
+            ->withStatus(200);
 
     }
 }

@@ -12,6 +12,7 @@ require __DIR__ . '/../vendor/autoload.php';
 //config (Db connections)
 require __DIR__ . '/../app/config/Db.php';
 require __DIR__ . '/../app/config/DbCrm.php';
+require __DIR__ . '/../app/config/DbMongo.php';
 
 //helpers
 require_once __DIR__ . '/../app/helpers.php';
@@ -27,6 +28,7 @@ require __DIR__ . '/../app/Http/Controllers/RabbitMQController.php';
 //repositories
 require __DIR__ . '/../app/Repositories/DbCrmRepository.php';
 require __DIR__ . '/../app/Repositories/DbRepository.php';
+require __DIR__ . '/../app/Repositories/DbMongoRepository.php';
 
 //services
 

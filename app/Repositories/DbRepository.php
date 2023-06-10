@@ -2,15 +2,14 @@
 
 namespace Repositories;
 use config\Db;
-use DateInterval;
-use DateTime;
+use Exception;
 use PDO;
 use PDOException;
 
 class DbRepository
 {
-    private $db;
-    private $conn;
+    private Db $db;
+    private PDO $conn;
 
     public function __construct()
     {
@@ -35,7 +34,7 @@ class DbRepository
     /**
      * @param int|null $id
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function getCompanies(int $id = null): array
     {
@@ -48,7 +47,7 @@ class DbRepository
 
             return $this->executeQuery($sql, $id);
         } catch (PDOException $e) {
-            throw new \Exception($e->getMessage());
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -56,7 +55,7 @@ class DbRepository
     /**
      * @param int $internal_id
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function findByInternalId(int $id ): array
     {
@@ -66,7 +65,7 @@ class DbRepository
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            throw new \Exception($e->getMessage());
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -92,10 +91,16 @@ class DbRepository
 
             return $this->conn->lastInsertId();
         } catch (PDOException $e) {
-            throw new \Exception($e->getMessage());
+            throw new Exception($e->getMessage());
         }
     }
 
+    /**
+     * @param int $id
+     * @param array $data
+     * @return bool
+     * @throws Exception
+     */
     public function updateCompany(int $id, array $data): bool
     {
 
@@ -135,7 +140,7 @@ class DbRepository
             return $rowCount > 0;
         } catch (PDOException $e) {
 
-            throw new \Exception($e->getMessage());
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -145,7 +150,7 @@ class DbRepository
     /**
      * @param int $id
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteCompany(int $id): bool
     {
@@ -156,7 +161,7 @@ class DbRepository
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteAllCompanies(): bool
     {
@@ -197,7 +202,7 @@ class DbRepository
      * @param string $sql
      * @param array $params
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     private function executeDeleteQuery(string $sql, array $params = []): bool
     {
@@ -207,7 +212,7 @@ class DbRepository
             $rowCount = $stmt->rowCount();
             return $rowCount > 0;
         } catch (PDOException $e) {
-            throw new \Exception($e->getMessage());
+            throw new Exception($e->getMessage());
         }
     }
 
